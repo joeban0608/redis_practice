@@ -1,0 +1,34 @@
+version: '3.8'
+
+networks:
+  custom-network:
+    driver: bridge
+
+services:
+  redis-stack:
+    image: redis/redis-stack-server:latest
+    container_name: redis-stack
+    ports:
+      - '6379:6379' # Redis 伺服器端口
+    networks:
+      - custom-network
+    volumes:
+      - redis-data:/data
+    # environment:
+    #   # Redis 默認用戶開啟所有權限（未設置密碼）
+    #   REDIS_ARGS: '--user default on +@all ~*'
+
+  redis-insight:
+    image: redis/redisinsight:latest
+    container_name: redis-insight
+    ports:
+      - '5540:5540' # Redis Insight 的 Web 界面端口
+    networks:
+      - custom-network
+    environment:
+      - 'RI_REDIS_HOST=192.168.0.73'
+      - 'RI_REDIS_PORT=6379'
+    depends_on:
+      - redis-stack
+volumes:
+  redis-data:
